@@ -1,0 +1,114 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  line-height: 1.6;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #0f766e, #6366f1);
+  color: white;
+}
+
+.logo {
+  width: 90px;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  max-width: 500px;
+  margin: 0 auto 30px;
+  opacity: 0.95;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: white;
+  color: #0f766e;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.warning {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* FEATURES */
+.features {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.features h2 {
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.feature {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* INSTALL */
+.install {
+  padding: 60px 20px;
+  max-width: 700px;
+  margin: auto;
+}
+
+.install h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.install ol {
+  padding-left: 20px;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  background: #020617;
+  color: #cbd5f5;
+}
+
+footer a {
+  color: #38bdf8;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 10px;
+}

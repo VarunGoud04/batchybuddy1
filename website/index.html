@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BatchBuddy – Student Expense App</title>
+
+  <link rel="icon" href="assets/app_icon.png" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    :root {
+      color-scheme: light dark; /* let browser adjust scrollbars, form controls [web:148] */
+
+      /* default (light) theme */
+      --bb-teal: #0f766e;
+      --bb-teal-soft: #14b8a6;
+      --bb-indigo: #6366f1;
+      --bb-emerald: #10b981;
+      --bb-bg: #f8fafc;
+      --bb-surface: #ffffff;
+      --bb-surface-soft: #f1f5f9;
+      --bb-border-subtle: rgba(148, 163, 184, 0.35);
+      --bb-text: #0f172a;
+      --bb-muted: #64748b;
+      --bb-footer-bg: radial-gradient(circle at top, #020617, #020617 55%, #0b1120 100%);
+      --bb-footer-border: rgba(148, 163, 184, 0.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bb-teal: #22c55e;
+        --bb-teal-soft: #14b8a6;
+        --bb-indigo: #4f46e5;
+        --bb-emerald: #22c55e;
+        --bb-bg: #020617;
+        --bb-surface: #020617;
+        --bb-surface-soft: #020617;
+        --bb-border-subtle: rgba(148, 163, 184, 0.4);
+        --bb-text: #e5e7eb;
+        --bb-muted: #9ca3af;
+        --bb-footer-bg: radial-gradient(circle at top, #020617, #020617 55%, #020617 100%);
+        --bb-footer-border: rgba(30, 64, 175, 0.8);
+      }
+    }
+
+    body {
+      background: var(--bb-bg);
+      color: var(--bb-text);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    section {
+      padding: 70px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+
+    /* ANIMATIONS */
+    @keyframes heroGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes expenseBubble {
+      0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0.15;
+      }
+      50% {
+        transform: translateY(-40px) translateX(20px) scale(1.1);
+        opacity: 0.45;
+      }
+      100% {
+        transform: translateY(-80px) translateX(-10px) scale(1.05);
+        opacity: 0.18;
+      }
+    }
+
+    @keyframes accentColor {
+      0%   { color: #38bdf8; }
+      50%  { color: #a855f7; }
+      100% { color: #22c55e; }
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.7s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.15s; }
+    .delay-2 { animation-delay: 0.3s; }
+    .delay-3 { animation-delay: 0.45s; }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      padding: 90px 20px;
+      background: radial-gradient(circle at top left, var(--bb-teal-soft), var(--bb-indigo));
+      background-size: 180% 180%;
+      animation: heroGradient 16s ease-in-out infinite;
+      color: white;
+    }
+
+    .hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo {
+      width: 90px;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      opacity: 0.98;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      max-width: 520px;
+      margin: 0 auto 30px;
+      opacity: 0.95;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: white;
+      color: var(--bb-teal);
+      padding: 14px 30px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+      box-shadow: 0 12px 24px rgba(15, 118, 110, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(15, 118, 110, 0.38);
+      background: #e0f2fe;
+      color: #0f172a;
+    }
+
+    .warning {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* HERO BACKGROUND BUBBLES */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-bubble {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(28px);
+      opacity: 0.3;
+      mix-blend-mode: screen;
+      animation: expenseBubble 18s ease-in-out infinite alternate;
+    }
+
+    .hero-bubble.b1 {
+      width: 190px;
+      height: 190px;
+      background: rgba(16, 185, 129, 0.9);
+      top: 60%;
+      left: 8%;
+      animation-delay: 0s;
+    }
+
+    .hero-bubble.b2 {
+      width: 260px;
+      height: 260px;
+      background: rgba(99, 102, 241, 0.9);
+      top: 8%;
+      right: 12%;
+      animation-delay: 1.5s;
+    }
+
+    .hero-bubble.b3 {
+      width: 220px;
+      height: 220px;
+      background: rgba(20, 184, 166, 0.9);
+      bottom: -40px;
+      right: 40%;
+      animation-delay: 3s;
+    }
+
+    /* FEATURES */
+    .features {
+      background: var(--bb-surface);
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .feature {
+      background: var(--bb-surface-soft);
+      padding: 20px;
+      border-radius: 14px;
+      text-align: center;
+      font-weight: 500;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.14);
+      background: #e0f2fe;
+    }
+
+    /* HOW IT WORKS */
+    .steps {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .step {
+      background: var(--bb-surface);
+      padding: 25px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
+      border: 1px solid var(--bb-border-subtle);
+    }
+
+    .step:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 32px rgba(15, 23, 42, 0.14);
+      border-color: rgba(56, 189, 248, 0.9);
+    }
+
+    .step h3 {
+      margin-bottom: 8px;
+      color: var(--bb-teal);
+    }
+
+    .step span {
+      display: inline-block;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--bb-muted);
+      margin-bottom: 8px;
+    }
+
+    /* VERSION FEATURES */
+    .version-list {
+      max-width: 700px;
+      margin: auto;
+      list-style: none;
+    }
+
+    .version-list li {
+      padding: 10px 0;
+      font-size: 1rem;
+    }
+
+    .version-note {
+      text-align: center;
+      margin-top: 20px;
+      opacity: 0.8;
+    }
+
+    /* INSTALL */
+    .install {
+      background: var(--bb-surface);
+    }
+
+    .install ol {
+      max-width: 700px;
+      margin: auto;
+      padding-left: 20px;
+    }
+
+    .install li {
+      margin-bottom: 8px;
+    }
+
+    /* ROADMAP */
+    .roadmap-list {
+      max-width: 700px;
+      margin: auto;
+      list-style: none;
+    }
+
+    .roadmap-list li {
+      padding: 10px 0;
+    }
+
+    .roadmap-note {
+      text-align: center;
+      margin-top: 20px;
+      opacity: 0.8;
+    }
+
+    .roadmap-title-accent {
+      display: inline-block;
+      animation: accentColor 6s ease-in-out infinite alternate;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--bb-footer-bg);
+      color: #cbd5f5;
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid var(--bb-footer-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    footer a {
+      color: #38bdf8;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 10px;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #7dd3fc;
+      text-decoration: underline;
+    }
+
+   .footer-pill a.footer-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-brand-link span:first-child {
+  font-weight: 600;
+  animation: accentColor 7s ease-in-out infinite alternate;
+}
+
+.footer-pill a.footer-brand-link:hover {
+  text-decoration: underline;
+}
+
+
+    .footer-glow {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.4), transparent);
+      filter: blur(60px);
+      opacity: 0.45;
+      bottom: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    /* SMALL SCREEN TWEAKS */
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+      section {
+        padding: 50px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <!-- animated expense-style background blobs -->
+    <div class="hero-bg">
+      <div class="hero-bubble b1"></div>
+      <div class="hero-bubble b2"></div>
+      <div class="hero-bubble b3"></div>
+    </div>
+
+    <div class="hero-inner fade-up">
+      <img src="assets/app_icon.png" alt="BatchBuddy Logo" class="logo" />
+      <h1>BatchBuddy</h1>
+      <p class="hero-sub">Smart shared expenses for students and roommates.</p>
+      <p class="tagline">
+        Create a group, add your shared expenses, and let BatchBuddy keep track of who owes what,
+        so your batch or flat stays stress-free.
+      </p>
+
+      <a
+        href="https://github.com/VarunGoud04/batchybuddy1/releases/download/v1.0.0/batchbuddy-v1.0.0.apk"
+        class="btn-primary"
+      >
+        ⬇ Download Android APK
+      </a>
+
+      <p class="warning">
+        ⚠️ Android may show a security warning because this app is not from Play Store.
+        This is expected for GitHub releases.
+      </p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features fade-up delay-1">
+    <h2>Why BatchBuddy?</h2>
+    <div class="feature-list">
+      <div class="feature">📱 Simple & clean UI made for quick daily checks.</div>
+      <div class="feature">🎓 Built around real student and roommate scenarios.</div>
+      <div class="feature">⚡ Lightweight & fast, runs well on budget devices.</div>
+      <div class="feature">🔒 No ads, no trackers, no unnecessary permissions.</div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="fade-up delay-1">
+    <h2>How BatchBuddy Works</h2>
+    <div class="steps">
+      <div class="step">
+        <span>Step 1</span>
+        <h3>Install the App</h3>
+        <p>Download the APK, install it on your Android phone, and open BatchBuddy.</p>
+      </div>
+      <div class="step">
+        <span>Step 2</span>
+        <h3>Create or Join a Group</h3>
+        <p>
+          Create a group for your class, trip, or flat and share the Group ID with your friends.
+        </p>
+      </div>
+      <div class="step">
+        <span>Step 3</span>
+        <h3>Add & Split Expenses</h3>
+        <p>
+          Add expenses as they happen. BatchBuddy splits them fairly and shows live balances for
+          everyone.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERSION FEATURES -->
+  <section class="fade-up delay-2">
+    <h2>Features in Version 1.0.0</h2>
+    <ul class="version-list">
+      <li>✔ Clean and minimal interface focused on clarity.</li>
+      <li>✔ Group-based expense tracking for batches, trips, and flats.</li>
+      <li>✔ Lightweight APK optimized for student devices.</li>
+      <li>✔ Core flows work offline and sync as needed.</li>
+      <li>✔ No ads or pop-ups interrupting your flow.</li>
+      <li>✔ Simple, transparent balances for every member.</li>
+    </ul>
+    <p class="version-note">
+      Version 1.0.0 focuses on reliability, low friction, and a calm money experience for students.
+    </p>
+  </section>
+
+  <!-- INSTALL -->
+  <section class="install fade-up delay-2">
+    <h2>How to Install</h2>
+    <ol>
+      <li>Tap the download button at the top of this page.</li>
+      <li>After the APK downloads, open it from your Downloads or notification tray.</li>
+      <li>Allow “Install from unknown sources” if Android asks for permission.</li>
+      <li>Finish installation and launch BatchBuddy from your app drawer.</li>
+    </ol>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="fade-up delay-3">
+    <h2><span class="roadmap-title-accent">What’s Coming Next</span></h2>
+    <ul class="roadmap-list">
+      <li>🔹 Smoother in-app animations and micro-interactions.</li>
+      <li>🔹 Advanced split types (custom shares, uneven splits, recurring bills).</li>
+      <li>🔹 Monthly and trip-wise export summaries for PDFs or screenshots.</li>
+      <li>🔹 Play Store release with automatic updates (planned).</li>
+    </ul>
+    <p class="roadmap-note">
+      Feedback from early student users will directly shape the next versions.
+    </p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-glow"></div>
+    <div class="footer-inner">
+      <p>© 2026 BatchBuddy · All rights reserved</p>
+
+    <div class="footer-pill">
+  <a
+    href="https://varuntechservices.vercel.app"
+    target="_blank"
+    class="footer-brand-link"
+  >
+    <span>VarunTechServices</span>
+    <span>· A student-focused product studio</span>
+  </a>
+</div>
+
+
+      <p style="margin-top: 10px; font-size: 0.95rem;">
+        BatchBuddy is a product of VarunTechServices, crafted with an engineer-led,
+        AI-assisted workflow.
+      </p>
+
+      <a href="https://github.com/VarunGoud04/BatchBuddyApp" target="_blank">
+        View BatchBuddy source on GitHub
+      </a>
+    </div>
+  </footer>
+
+  <!-- Scroll-trigger for fade-up -->
+  <script>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.animationPlayState = 'running';
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    document.querySelectorAll('.fade-up').forEach((el) => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  </script>
+  <script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  document.addEventListener('keydown', e => {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+      (e.ctrlKey && e.key === 'U')
+    ) {
+      e.preventDefault();
+    }
+  });
+</script>
+
+</body>
+</html>
